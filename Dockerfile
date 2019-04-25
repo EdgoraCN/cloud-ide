@@ -27,30 +27,42 @@ RUN code -v --user-data-dir /root/.config/Code && \
 	sh install-vscode-extensions.sh ../extensions.list
 
 # The production image for code-server
-FROM ubuntu:18.10
-MAINTAINER Everette Rong (https://rongyi.blog)
-WORKDIR /project
-COPY --from=coder-binary /usr/local/bin/code-server /usr/local/bin/code-server
-RUN mkdir -p /root/.code-server/User
-COPY --from=vscode-env /root/settings.json /root/.code-server/User/settings.json
-COPY --from=vscode-env /root/.vscode/extensions /root/.code-server/extensions
-COPY scripts /root/scripts
+FROM aimacity/workspace-full 
+LABEL author="ide@aima.city"
 
-RUN apt-get update && \
-	apt-get install -y curl gnupg2 ca-certificates && \
-	apt-get install -y locales && \
-	locale-gen en_US.UTF-8
-# Locale Generation
-# We unfortunately cannot use update-locale because docker will not use the env variables
-# configured in /etc/default/locale so we need to set it manually.
+USER root
+
+COPY scripts /root/scripts
+# Install langauge toolchains
+#RUN sh /root/scripts/install-tools-nodejs.sh
+RUN sh /root/scripts/install-tools-dev.sh
+#RUN sh /root/scripts/install-tools-golang.sh
+#RUN sh /root/scripts/install-tools-cpp.sh
+#RUN sh /root/scripts/install-tools-python.sh
+#RUN sh /root/scripts/install-tools-java.sh
+
 ENV LANG=en_US.UTF-8
 
-# Install langauge toolchains
-RUN sh /root/scripts/install-tools-nodejs.sh
-RUN sh /root/scripts/install-tools-dev.sh
-RUN sh /root/scripts/install-tools-golang.sh
-RUN sh /root/scripts/install-tools-cpp.sh
-RUN sh /root/scripts/install-tools-python.sh
+
+
+USER aima
+COPY  --from=coder-binary /usr/local/bin/code-server /usr/local/bin/code-server
+RUN mkdir -p $HOME/.code-server/User && sudo mkdir /workspace  && sudo chown aima:aima /workspace
+COPY  --chown=aima:aima  --from=vscode-env /root/settings.json $HOME/.code-server/User/settings.json
+COPY  --chown=aima:aima --from=vscode-env /root/.vscode/extensions $HOME/.code-server/extensions
+COPY  --chown=aima:aima --from=vscode-env /root/locale.json $HOME/.code-server/User/locale.json
+COPY  --chown=aima:aima --from=vscode-env /root/keybindings.json $HOME/.code-server/User/keybindings.json
+
+WORKDIR /workspace
+
+#RUN yarn config set registry https://registry.npm.taobao.org  && \
+#yarn config set disturl https://npm.taobao.org/dist && \
+#npm config set registry https://registry.npm.taobao.org &&\
+#npm config set disturl https://npm.taobao.org/dist
+
+#ENV JAVA_HOME=$HOME/.sdkman/candidates/java/current
+#ENV M2_HOME=$HOME/.sdkman/candidates/maven/current
+COPY --chown=aima:aima  config/settings.xml $M2_HOME/conf
 
 EXPOSE 8443
 CMD code-server $PWD

@@ -8,7 +8,7 @@ For the original EvDev which features EverVim and SpaceMacs, please see the [ter
 ## Usage
 #### If you want to use my configuration:
 ```bash
-docker run -p 127.0.0.1:8443:8443 -v "${PWD}:/project" ler0ever/evdev code-server --allow-http --no-auth
+docker run --name cloud-ide  -p 9981:8443 -v "${PWD}:/workspace"  aimacity/cloud-ide code-server --allow-http --no-auth
 ```
 
 #### If you have your own VSCode Settings Sync setup
