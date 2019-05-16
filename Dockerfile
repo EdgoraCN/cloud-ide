@@ -1,5 +1,5 @@
 # Just use the code-server docker binary
-FROM codercom/code-server as coder-binary
+FROM aimacity/code-server as coder-binary
 
 FROM ubuntu:18.10 as vscode-env
 ARG DEBIAN_FRONTEND=noninteractive
@@ -52,6 +52,7 @@ COPY  --chown=aima:aima  --from=vscode-env /root/settings.json $HOME/.code-serve
 COPY  --chown=aima:aima --from=vscode-env /root/.vscode/extensions $HOME/.code-server/extensions
 COPY  --chown=aima:aima --from=vscode-env /root/locale.json $HOME/.code-server/User/locale.json
 COPY  --chown=aima:aima --from=vscode-env /root/keybindings.json $HOME/.code-server/User/keybindings.json
+COPY --chown=aima:aima --from=vscode-env /usr/share/code/resources/app/out/nls.metadata.json  $HOME/.code-server/nls.metadata.json
 
 WORKDIR /workspace
 

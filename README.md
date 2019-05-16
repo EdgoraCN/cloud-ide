@@ -25,7 +25,17 @@ docker run --name cloud-ide  -p 9981:8443 -v "${PWD}:/workspace"  aimacity/cloud
 
 #### Official VSCode Extension Market
 - Code-server uses their own extensions registry and it is pretty limited and outdated, at least for now.  
-- Here, Microsoft VSCode binary is used to install all the extensions before copying to code-server for final use, so they are up-to-date and official. 
+- Here, Microsoft VSCode binary is used to install all the extensions before copying to code-server for final use, so they are up-to-date and official.
+
+### ssh code usage
+
+```bash
+
+export VSCODE_CONFIG_DIR=$HOME/.config/Code
+export VSCODE_EXTENSIONS_DIR=$HOME/.vscode/extensions
+sshcode user@host  ~/code-server-workplace
+
+```
 
 #### Dev Tools Included out of the box
 - Comes with 
