@@ -16,7 +16,7 @@ COPY scripts /root/scripts
 COPY sync.gist /root/sync.gist
 
 # This gets user config from gist, parse it and install exts with VSCode
-#RUN $HOME/ -v --user-data-dir /root/.config/Code && \
+##RUN $HOME/ -v --user-data-dir /root/.config/Code && \
 RUN  cd /root/scripts && \
 	sh get-config-from-gist.sh && \
 	sh parse-extension-list.sh && \
@@ -39,17 +39,15 @@ RUN sh /root/scripts/install-tools-dev.sh
 
 ENV LANG=en_US.UTF-8
 
-
-
-USER aima
+USER  aima
 ENV DATA_HOME=$HOME/.local/share/code-server
 COPY  --from=coder-binary /usr/local/bin/code-server /usr/local/bin/code-server
-RUN mkdir -p $DATA_HOME/User && sudo mkdir /workspace  && sudo chown aima:aima /workspace
+RUN  mkdir -p $DATA_HOME/User && sudo mkdir /workspace  && sudo chown aima:aima /workspace
 COPY  --chown=aima:aima  --from=vscode-env /root/settings.json $DATA_HOME/User/settings.json
 COPY  --chown=aima:aima --from=vscode-env /root/.local/share/code-server/extensions $DATA_HOME/extensions
 COPY  --chown=aima:aima --from=vscode-env /root/locale.json $DATA_HOME/User/locale.json
 COPY  --chown=aima:aima --from=vscode-env /root/keybindings.json $DATA_HOME/User/keybindings.json
-COPY --chown=aima:aima --from=vscode-env /root/VSCode-linux-x64/resources/app/out/nls.metadata.json  $DATA_HOME/nls.metadata.json
+COPY  --chown=aima:aima --from=vscode-env /root/VSCode-linux-x64/resources/app/out/nls.metadata.json  $DATA_HOME/nls.metadata.json
 
 WORKDIR /workspace
 
