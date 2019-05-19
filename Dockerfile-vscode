@@ -1,0 +1,26 @@
+FROM ubuntu:18.10
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Install the actual VSCode to download configs and extensions
+RUN apt-get update && \
+	apt-get install -y curl libnss3   libgtk-3-0  libxss1 libx11-xcb1 libasound2  jq&& \
+	cd $HOME && curl -o vscode-amd64.tar.gz -L  https://vscode-update.azurewebsites.net/latest/linux-x64/stable && \
+	tar  -zxvf  vscode-amd64.tar.gz || true && \
+	rm -f vscode-amd64.tar.gz && \
+	 apt autoremove &&  apt clean 
+
+ENV LANG=en_US.UTF-8
+ENV PUID=1000
+ENV PUID=1000
+
+VOLUME [ "/config" ]
+VOLUME [ "/output" ]
+
+# copy command to bin 
+
+COPY scripts/vs-setting.sh /usr/bin/vs-setting
+RUN chmod +x  /usr/bin/vs-setting 
+
+CMD vs-setting
+
+
