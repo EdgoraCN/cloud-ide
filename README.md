@@ -11,11 +11,27 @@ For the original EvDev which features EverVim and SpaceMacs, please see the [ter
 docker run --name cloud-ide  -p 9981:8443 -v "${PWD}:/workspace"  aimacity/cloud-ide code-server --allow-http --no-auth
 ```
 
+#### If you want to generate setings :
+```bash
+mkdir -p ~/data-home/config
+
+echo "novboy/45e990947d88fe1d1fa1bdbda94481cd" >> ~/data-home/config/sync.gist
+
+docker run --rm \
+  -v  ~/data-home/config:/config   \
+  -v  ~/data-home:/output   \
+  -e PUID=$(id -u) -e PGID=$(id -g) \
+  -e TZ="Asia/Shanghai" \
+  aimacity/cloud-ide:vscode
+
+docker run --name cloud-ide  -p 8443:8443 -v "${PWD}:/workspace"  -v ~/data-home:/home/aima/.local/share/code-server aimacity/cloud-ide code-server --allow-http --no-auth
+```
+
 #### If you have your own VSCode Settings Sync setup
 - Fork this project
 - Change `sync.gist` into your gist id "USERNAME/GISTID"
 - `docker build . -tag WHATEVER`
-- `docker run -p 127.0.0.1:8443:8443 -v "${PWD}:/project" WHATEVER code-server --allow-http --no-auth`
+- `docker run -p 127.0.0.1:8443:8443 -v "${PWD}:/workspace" WHATEVER code-server --allow-http --no-auth`
 
 ## Features
 #### Sync with VSCode Settings Sync
