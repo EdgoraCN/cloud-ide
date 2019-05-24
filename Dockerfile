@@ -14,13 +14,13 @@ RUN apt-get update && \
 
 COPY scripts /root/scripts
 #COPY sync.gist /root/sync.gist
+COPY config /root/config
 
 # This gets user config from gist, parse it and install exts with VSCode
-##RUN $HOME/ -v --user-data-dir /root/.config/Code && \
-# RUN  cd /root/scripts && \
+RUN  cd /root/scripts && \
 # 	sh get-config-from-gist.sh && \
 # 	sh parse-extension-list.sh && \
-# 	sh install-vscode-extensions.sh ../extensions.list
+sh install-vscode-extensions.sh ../config/extensions.list
 
 # The production image for code-server
 FROM aimacity/workspace-full 
@@ -50,20 +50,18 @@ ENV LC_ALL=en_US.UTF-8
 COPY  --from=coder-binary /usr/local/bin/code-server /usr/local/bin/code-server
 RUN  mkdir -p $IDE_USER_DATA_DIR/User && sudo mkdir /workspace  && sudo chown aima:aima /workspace
 #COPY  --chown=aima:aima  --from=vscode-env /root/settings.json $IDE_USER_DATA_DIR/User/settings.json
-#COPY  --chown=aima:aima --from=vscode-env /root/.local/share/code-server/extensions $IDE_USER_DATA_DIR/extensions
 #COPY  --chown=aima:aima --from=vscode-env /root/locale.json $IDE_USER_DATA_DIR/User/locale.json
 #COPY  --chown=aima:aima --from=vscode-env /root/keybindings.json $IDE_USER_DATA_DIR/User/keybindings.json
+COPY  --chown=aima:aima --from=vscode-env /root/.local/share/code-server/extensions $IDE_USER_DATA_DIR/extensions
+# add chinses support
 COPY  --chown=aima:aima --from=vscode-env /root/VSCode-linux-x64/resources/app/out/nls.metadata.json  $IDE_USER_DATA_DIR/nls.metadata.json
+COPY  --chown=aima:aima  config/locale.json $IDE_USER_DATA_DIR/User/locale.json
+
+
 
 WORKDIR /workspace
 
-#RUN yarn config set registry https://registry.npm.taobao.org  && \
-#yarn config set disturl https://npm.taobao.org/dist && \
-#npm config set registry https://registry.npm.taobao.org &&\
-#npm config set disturl https://npm.taobao.org/dist
 
-#ENV JAVA_HOME=$HOME/.sdkman/candidates/java/current
-#ENV M2_HOME=$HOME/.sdkman/candidates/maven/current
 COPY --chown=aima:aima  config/settings.xml $M2_HOME/conf
 
 # setup supervisord
@@ -86,8 +84,9 @@ RUN  sudo wget -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/rel
 # copy command to bin 
 COPY scripts/install-vscode.sh /usr/bin/install-vscode
 COPY scripts/install-ext.sh /usr/bin/install-ext
+COPY scripts/restart-ide.sh /usr/bin/restart-ide
 COPY --chown=aima:aima scripts/init.sh ${IDE_WORKSPACE}/.vscode
-RUN sudo chmod +x  /usr/bin/install-vscode && sudo chmod +x  /usr/bin/install-ext
+RUN sudo chmod +x  /usr/bin/install-vscode /usr/bin/install-ext /usr/bin/restart-ide
 
 ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
 CMD ["/usr/local/bin/supervisord","-n","-c","/etc/supervisord.conf"]

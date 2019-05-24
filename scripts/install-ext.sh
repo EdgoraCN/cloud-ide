@@ -1,9 +1,27 @@
 #!/bin/bash
 
-echo "try to down load config file from /config/sync.gist"
+if [ -f "/tmp/VSCode-linux-x64/bin/code" ] ; then
+        echo "vscode portable version found at /tmp/VSCode-linux-x64/bin/code"
+else
+    echo "try to download vscode portable version"
+    /usr/bin/install-vscode
+fi
+
+if [ "$#" -gt  0 ]; then
+     echo "try to install  extensions: $@"
+     for var in "$@"
+    do
+        /tmp/VSCode-linux-x64/bin/code --user-data-dir $IDE_USER_DATA_DIR  --extensions-dir $IDE_EXTENSIONS_DIR  --install-extension $var
+    done
+    echo "Done"
+    exit 0;
+fi
 
 VS_DIR=$IDE_WORKSPACE/.vscode
 GLIST=$VS_DIR/sync.gist
+
+echo "try to down load config file from gist file $GLIST"
+
 mkdir -p $IDE_USER_DATA_DIR/{config,User,extensions}
 
 if [ -f "$GLIST" ] ; then
@@ -30,9 +48,13 @@ fi
 
 if [ -f "$EXT_LIST" ] ; then
 while IFS='' read -r line || [[ -n "$line" ]]; do
-    echo "Installing $line using VSCode";
-    /tmp/VSCode-linux-x64/bin/code --user-data-dir $IDE_USER_DATA_DIR  --extensions-dir $IDE_EXTENSIONS_DIR  --install-extension $line
-    echo "extensions installed successfully"
+    if [[ "$line"  =~ ^[a-zA-Z0-9] ]];then
+        echo "Installing $line using VSCode";
+        /tmp/VSCode-linux-x64/bin/code --user-data-dir $IDE_USER_DATA_DIR  --extensions-dir $IDE_EXTENSIONS_DIR  --install-extension $line
+        echo "extensions installed successfully"
+    else
+        echo "skip plugin $line";
+    fi
 done < "$EXT_LIST"
 else 
     echo "$EXT_LIST does not exist, skip installation"

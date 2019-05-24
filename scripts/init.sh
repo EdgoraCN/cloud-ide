@@ -12,6 +12,7 @@ git config --global credential.helper store
 #git config --global http.proxy socks5h://127.0.0.1:1080
 #git config --global https.proxy socks5h://127.0.0.1:1080
 #git config --global user.name "user"
+#git config --global user.email "user@aima.city"
 
 #  yarn and npm setting
 yarn config set registry https://registry.npm.taobao.org

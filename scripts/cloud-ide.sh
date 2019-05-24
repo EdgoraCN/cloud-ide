@@ -39,4 +39,4 @@ fi
 
 echo "/usr/local/bin/code-server $workspace $allowhttp $noauth --user-data-dir $userdatadir --extensions-dir $userdatadir $otherargs"
 # exec cmd
-/usr/local/bin/code-server  $workspace $allowhttp $noauth --user-data-dir $userdatadir --extensions-dir $userdatadir $otherargs
+/usr/local/bin/code-server  $workspace $allowhttp $noauth --user-data-dir $userdatadir --extensions-dir $extensionsdir $otherargs

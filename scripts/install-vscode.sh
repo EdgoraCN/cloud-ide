@@ -6,4 +6,5 @@ cd /tmp
 curl -o vscode-amd64.tar.gz -L  https://vscode-update.azurewebsites.net/latest/linux-x64/stable && \
 tar  -zxvf  vscode-amd64.tar.gz
 rm -f vscode-amd64.tar.gz 
-sudo apt autoremove &&  apt clean
+sudo apt autoremove 
+sudo  apt clean
