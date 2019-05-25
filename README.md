@@ -196,7 +196,7 @@ get-onedrive-token
 ```
 
 ```bash
-# modify $IDE_WORKSPACE/.vscode/service/onedirve.conf to enable autostart
+# modify $IDE_WORKSPACE/.vscode/service/onedrive.conf to enable autostart
 [program:onedrive]
 command=/usr/bin/onedrive.sh
 process_name=onedrive
@@ -227,11 +227,25 @@ workspace use [workspace folder name]
 ```bash
 export  sync_dir=~/OneDrive
 export  workspace_name=default
-mkdir -p  $sync_dir/${workspace_name}/User
-mkdir -p $sync_dir/${workspace_name}/workspace/.vscode/onedirve
-# download cloud-ide/${workspace_name}/.vscode/onedirve/{config,sync_list,refresh_token} from cloud  
-# then put them under $sync_dir/${workspace_name}/workspace/.vscode/onedirve
+mkdir -p  $sync_dir/cloud-ide/${workspace_name}/User
+mkdir -p $sync_dir/cloud-ide/${workspace_name}/workspace/.vscode/onedrive
+mkdir -p $sync_dir/cloud-ide/${workspace_name}/workspace/.vscode/service
+
+cat > $sync_dir/cloud-ide/${workspace_name}/workspace/.vscode/service/onedrive.conf <<'EOF'
+[program:onedrive]
+command=/usr/bin/onedrive.sh
+process_name=onedrive
+#numprocs=1
+autostart=true
+autorestart=true
+startretries=999
+redirect_stderr=true
+EOF
+
+# download cloud-ide/${workspace_name}/.vscode/onedrive/{config,sync_list,refresh_token} from cloud  
+# then put them under $sync_dir/${workspace_name}/workspace/.vscode/onedrive
 workspace use $workspace_name
+# !!! after the file is download, use install-ext to sync
 # refresh browser
 ```
 
