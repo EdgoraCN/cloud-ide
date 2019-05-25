@@ -20,7 +20,7 @@ aimacity/cloud-ide
 # code-server directory
  IDE_USER_DATA_DIR="$HOME/.local/share/code-server"
  # workspace directory
-IDE_WORKSPACE="/workspace"
+IDE_WORKSPACE="$HOME/workspace"
  # code-server extensions directory
 IDE_EXTENSIONS_DIR="$HOME/.local/share/code-server/extensions"
  # allow http acess
@@ -40,7 +40,7 @@ docker run  -d  \
 -e IDE_NO_AUTH=true \
 -e IDE_EXTENSIONS_DIR=/extensions \
 -e TZ="Asia/Shanghai"  \
--v ~/workspace/ermscloud:/workspace   \
+-v ~/workspace/ermscloud:/home/aima/workspace   \
 -v ~/vwcode-data-dir:/home/aima/.local/share/code-server \
 -v ~/extensions:/extensions \
 aimacity/cloud-ide
@@ -160,17 +160,103 @@ toolings pre-installed and ready to use.
 
 ### Setting and Workspace synchronization
 
-* OneDrive VSCode settting and workspace synchronization (coming soon)
+#### OneDrive VSCode settting and workspace synchronization
 
-* Mega VSCode settting and workspace synchronization (future)
+* start a fresh workspace and start synchronization
 
-* Sync settting and workspace wtih [Syncthing](https://github.com/syncthing/syncthing)  (future)
+```bash
+#  start a new instance
+docker run --name ide-beta   \
+-p 9888:8443  \
+-e IDE_ALLOW_HTTP=true \
+-e IDE_NO_AUTH=true \
+aimacity/cloud-ide
+```
+
+```bash
+#  Modify $IDE_WORKSPACE/.vscode/ondrive/config
+# Directory where the files will be synced
+sync_dir = "~/OneDrive"
+# Skip files and directories that match this pattern
+skip_file = "~*|.~*|*.tmp|*.log"
+skip_dir = "node_modules|.m2|extensions|target"
+# give  a folder name to  the workspace in onedrive, if not set, `default` will be used
+workspace_name=default 
+```
+
+```bash
+#  if you have token then create $IDE_WORKSPACE/.vscode/ondrive/refresh_token
+cat > $IDE_WORKSPACE/.vscode/ondrive/refresh_token <<'EOF'
+the token data...
+EOF
+
+# if you done have a token, execute the fllowing command to create a new one
+get-onedrive-token
+# a new file $IDE_WORKSPACE/.vscode/ondrive/refresh_token was created
+```
+
+```bash
+# modify $IDE_WORKSPACE/.vscode/service/onedirve.conf to enable autostart
+[program:onedrive]
+command=/usr/bin/onedrive.sh
+process_name=onedrive
+#numprocs=1
+#enable autostart
+autostart=true
+autorestart=true
+startretries=999
+redirect_stderr=true
+```
+
+```bash
+# everything is ok now , let's create the new workspace and restart all services
+workspace new
+# refresh browser
+```
+
+* load an exist workspace form local onedrive cache and start synchronization
+
+```bash
+# everything is ok now , let's create the new workspace and restart all services
+workspace use [workspace folder name]
+# refresh browser
+```
+
+* load an exist workspace  without local cache and start synchronization
+
+```bash
+export  sync_dir=~/OneDrive
+export  workspace_name=default
+mkdir -p  $sync_dir/${workspace_name}/User
+mkdir -p $sync_dir/${workspace_name}/workspace/.vscode/onedirve
+# download cloud-ide/${workspace_name}/.vscode/onedirve/{config,sync_list,refresh_token} from cloud  
+# then put them under $sync_dir/${workspace_name}/workspace/.vscode/onedirve
+workspace use $workspace_name
+# refresh browser
+```
+
+* disable onedrive and restore workspace
+
+```bash
+workspace leave
+# refresh browser
+```
+
+* show local cached workspace
+
+```bash
+workspace ls
+```
+
+#### Mega VSCode settting and workspace synchronization (future)
+
+#### Sync settting and workspace wtih [Syncthing](https://github.com/syncthing/syncthing)  (future)
 
 ## Features
 
 * Workspace and VS Code Setting synchronization
 
-* Workspace service, toolchain management (plan)
+* Workspace service, toolchain management (in process)
 
 * VS Code language pack support  (chinese is tested)
 

@@ -1,7 +1,7 @@
 #!//usr/local/bin/dumb-init /bin/sh
 set -e
 
-workspace="/workspace"
+workspace="$HOME/workspace"
 if [ "$IDE_WORKSPACE" !=  "" ] &&  [ -d "$IDE_WORKSPACE" ];then
       workspace="$IDE_WORKSPACE"
 fi
@@ -36,6 +36,27 @@ if [ -f  "$IDE_WORKSPACE/.vscode/init.sh" ];then
       $IDE_WORKSPACE/.vscode/init.sh
 fi
 
+# link folders to fix issues  for some plugin
+
+
+mkdir -p $HOME/.vscode
+mkdir -p $HOME/.config
+
+vsdata=$HOME/.config/Code
+if [ -d "$vsdata" ];then
+    echo "$vsdata exists"
+else 
+      ln -s $userdatadir $vsdata
+      echo "$vsdata is created"
+fi
+
+vsext=$HOME/.vscode/extensions
+if [ -d "$vsext" ];then
+    echo "$vsext exists"
+else 
+      ln -s $extensionsdir $vsext
+      echo "$vsext is created"
+fi
 
 echo "/usr/local/bin/code-server $workspace $allowhttp $noauth --user-data-dir $userdatadir --extensions-dir $userdatadir $otherargs"
 # exec cmd

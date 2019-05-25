@@ -1,0 +1,6 @@
+# Directory where the files will be synced
+sync_dir = "~/OneDrive"
+# Skip files and directories that match this pattern
+skip_file = "~*|.~*|*.tmp|*.log"
+skip_dir = "node_modules|.m2|extensions|target|.cache|.npm|.git|.idea"
+workspace_name=default

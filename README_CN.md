@@ -20,7 +20,7 @@ aimacity/cloud-ide
 # code-server directory
  IDE_USER_DATA_DIR="$HOME/.local/share/code-server"
  # workspace directory
-IDE_WORKSPACE="/workspace"
+IDE_WORKSPACE="$HOME/workspace"
  # code-server extensions directory
 IDE_EXTENSIONS_DIR="$HOME/.local/share/code-server/extensions"
  # allow http acess
@@ -40,7 +40,7 @@ docker run  -d  \
 -e IDE_NO_AUTH=true \
 -e IDE_EXTENSIONS_DIR=/extensions \
 -e TZ="Asia/Shanghai"  \
--v ~/workspace/ermscloud:/workspace   \
+-v ~/workspace/ermscloud:/home/aima/workspace   \
 -v ~/vwcode-data-dir:/home/aima/.local/share/code-server \
 -v ~/extensions:/extensions \
 aimacity/cloud-ide

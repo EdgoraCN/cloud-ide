@@ -1,6 +1,9 @@
 # Just use the code-server docker binary
 FROM aimacity/code-server as coder-binary
 
+FROM aimacity/onedrive as onedrive
+
+
 FROM ubuntu:18.10 as vscode-env
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -40,7 +43,7 @@ RUN sh /root/scripts/install-tools-dev.sh
 
 USER  aima
 ENV IDE_USER_DATA_DIR="$HOME/.local/share/code-server"
-ENV IDE_WORKSPACE="/workspace"
+ENV IDE_WORKSPACE="$HOME/workspace"
 ENV IDE_EXTENSIONS_DIR="$HOME/.local/share/code-server/extensions"
 ENV IDE_ALLOW_HTTP=false
 ENV IDE_NO_AUTH=false
@@ -48,7 +51,7 @@ ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 
 COPY  --from=coder-binary /usr/local/bin/code-server /usr/local/bin/code-server
-RUN  mkdir -p $IDE_USER_DATA_DIR/User && sudo mkdir /workspace  && sudo chown aima:aima /workspace
+RUN  mkdir -p $IDE_USER_DATA_DIR/User && sudo mkdir $IDE_WORKSPACE  && sudo chown aima:aima $IDE_WORKSPACE
 #COPY  --chown=aima:aima  --from=vscode-env /root/settings.json $IDE_USER_DATA_DIR/User/settings.json
 #COPY  --chown=aima:aima --from=vscode-env /root/locale.json $IDE_USER_DATA_DIR/User/locale.json
 #COPY  --chown=aima:aima --from=vscode-env /root/keybindings.json $IDE_USER_DATA_DIR/User/keybindings.json
@@ -59,7 +62,7 @@ COPY  --chown=aima:aima  config/locale.json $IDE_USER_DATA_DIR/User/locale.json
 
 
 
-WORKDIR /workspace
+WORKDIR $HOME
 
 
 COPY --chown=aima:aima  config/settings.xml $M2_HOME/conf
@@ -84,9 +87,22 @@ RUN  sudo wget -O /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/rel
 # copy command to bin 
 COPY scripts/install-vscode.sh /usr/bin/install-vscode
 COPY scripts/install-ext.sh /usr/bin/install-ext
+COPY scripts/get-onedrive-token.sh /usr/bin/get-onedrive-token
+COPY scripts/onedrive.sh /usr/bin/onedrive.sh
 COPY scripts/restart-ide.sh /usr/bin/restart-ide
+COPY scripts/export-ext.js /usr/bin/export-ext.js
+COPY scripts/export-setting.sh /usr/bin/export-setting.sh
+COPY scripts/workspace.sh /usr/bin/workspace
+
 COPY --chown=aima:aima scripts/init.sh ${IDE_WORKSPACE}/.vscode
-RUN sudo chmod +x  /usr/bin/install-vscode /usr/bin/install-ext /usr/bin/restart-ide
+COPY --chown=aima:aima config/service ${IDE_WORKSPACE}/.vscode/service
+COPY --chown=aima:aima config/onedrive ${IDE_WORKSPACE}/.vscode/onedrive
+COPY --chown=aima:aima config/extensions.list ${IDE_WORKSPACE}/.vscode
+
+RUN sudo chmod +x  /usr/bin/install-vscode /usr/bin/install-ext /usr/bin/restart-ide /usr/bin/install-ext /usr/bin/get-onedrive-token  /usr/bin/onedrive.sh /usr/bin/export-ext.js  /usr/bin/export-setting.sh /usr/bin/workspace
+
+# install onedrive
+COPY --from=onedrive /usr/local/bin/onedrive /usr/local/bin/onedrive
 
 ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
 CMD ["/usr/local/bin/supervisord","-n","-c","/etc/supervisord.conf"]
