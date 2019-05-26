@@ -1,15 +1,32 @@
 #!/bin/bash
+
+generateOneDriveConfig(){
+cat > $IDE_WORKSPACE/.vscode/onedrive/config <<'EOF'
+# Directory where the files will be synced
+sync_dir = "~/OneDrive"
+# Skip files and directories that match this pattern
+skip_file = "~*|.~*|*.tmp|*.log"
+skip_dir = "node_modules|.m2|extensions|target|.cache|.npm|.git|.idea"
+workspace_name=default 
+EOF
+}
 parseConfig(){
-    #onedrive_cfg=$HOME/onedrive/config
-    onedrive_cfg=""
+    onedrive_cfg="$IDE_WORKSPACE/.vscode/onedrive/config"
     if [ ! -f "$onedrive_cfg" ];then
-        #echo "$onedrive_cfg is missing"
-        onedrive_cfg="$IDE_WORKSPACE/.vscode/onedrive/config"
-        if [  -f $onedrive_cfg ];then
-            echo "use workspace onedrive config:$onedrive_cfg"
+           echo "Workspace $onedrive_cfg is missing"
+           echo "WARNING: this workspace is missing onedrive setting"
+           current_onedrive_cfg=$HOME/onedrive/config
+        if [  -f "$current_onedrive_cfg" ];then
+            mkdir -p "$IDE_WORKSPACE/.vscode/onedrive"
+            cp -fr $current_onedrive_cfg $onedrive_cfg
+            echo  "use glabal onedrive config:$current_onedrive_cfg"
+            sed -i  's/#workspace_name/workspace_name/g'  $onedrive_cfg
+        else
+             echo "current onedrive config is missing:$current_onedrive_cfg"
+             mkdir -p "$IDE_WORKSPACE/.vscode/onedrive"
+            generateOneDriveConfig
+             echo "a default onedirve config file is generated: $onedrive_cfg"
         fi
-    else
-        sed -i  's/#workspace_name/workspace_name/g'  $onedrive_cfg
     fi
 
     if [ -f  "$onedrive_cfg" ];then
@@ -17,11 +34,12 @@ parseConfig(){
         source /tmp/config.tmp
         sync_dir=`echo  "$sync_dir" | sed 's#~#/home/aima#'`
         sync_dir=`echo  "$sync_dir" | sed 's#$HOME#/home/aima#'`
-        if [ ! -d "$sync_dir" ];then
-            mkdir -p $sync_dir
+        if [ ! -d "$sync_dir" ] || [ ! -d "$sync_dir/cloud-ide" ];then
+            mkdir -p $sync_dir/cloud-ide
         fi
     else
         echo "ERROR: onedrive config file missing, may be you should enable onedrive first"
+        exit 0
     fi
 }
 backup() {
@@ -80,10 +98,10 @@ list() {
         echo "Current workspace:"
         echo 
         echo `ls -l ~ |grep cloud-ide | sed 's#.*/cloud-ide/##g'| sed 's#/workspace$##g'`
-        echo
     else 
         echo "ERROR: onedrive directory is missing, may be you should enable onedrive first"
     fi
+    echo ""
 }
 getCurrentWorkspaceName(){
          echo `ls -l ~ |grep cloud-ide | sed 's#.*/cloud-ide/##g'| sed 's#/workspace$##g'`
@@ -107,33 +125,31 @@ remove(){
     parseConfig
     current_name=`getCurrentWorkspaceName`
 
-    if[ "$1" == "" ];then
+    if [ "$1" == "" ];then
         help
         exit 0
     fi
 
-    if[ "$1" == "$current_name" ];then
+    if [ "$1" == "$current_name" ];then
+        echo 
         echo "ERROR: $1 workspace is use, please leave it or use another workspace"
         echo ""
-        echo "leave it:"
+        echo "you can leave it:"
         echo ""
         echo "workspace leave"
         echo ""
-        echo "use another workspace:"
+        echo "or use another workspace:"
         echo ""
         workspace ls
         exit 0
     fi
+    wp_path=$sync_dir/cloud-ide/$1
+    if [ ! -d "$sync_dir" ] ||  [ ! -d "$wp_path" ];then
 
-    if [ "$sync_dir" != "" ] &&  [ -d "$sync_dir" ];then
-            wp_path=$sync_dir/cloud-ide/$1
-        if [  -d "$wp_path" ]; then
-            rm -fr $wp_path
-        else 
-            echo "$workspace does not exist"
-        fi
+            echo "ERROR: $wp_path does not exist"
+
     else 
-        echo "ERROR: onedrive directory is missing, may be you should enable onedrive first"
+         rm -fr $wp_path
     fi
 }
 
@@ -233,7 +249,7 @@ help () {
 
 }
 if [ "$#" -gt  0 ]; then
-    echo "params: $@"
+    echo "action: $@"
     case $1 in
         new|create)	
             new $2
@@ -251,7 +267,7 @@ if [ "$#" -gt  0 ]; then
            leave
             ;;
         delete|remove)	
-           remove
+           remove $2
             ;;
         *) 
             help 

@@ -18,7 +18,7 @@ if(!fs.existsSync(ext_dir)){
 if(fs.existsSync(dest_file)){
     fs.unlink(dest_file, (err) => {
          if (err) throw err;
-         console.log(dest_file + 'was deleted');
+         console.log(dest_file + ' was deleted');
      });
 }
  

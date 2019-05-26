@@ -19,7 +19,9 @@ aimacity/cloud-ide
 ```bash
 # code-server directory
  IDE_USER_DATA_DIR="$HOME/.local/share/code-server"
- # workspace directory
+  # workspace directory, you can mount local worksapce here
+IDE_ORIGINAL_WORKSPACE="/workspace"
+ # workspace directory , link to $IDE_ORIGINAL_WORKSPACE, please do not change it
 IDE_WORKSPACE="$HOME/workspace"
  # code-server extensions directory
 IDE_EXTENSIONS_DIR="$HOME/.local/share/code-server/extensions"
@@ -40,7 +42,7 @@ docker run  -d  \
 -e IDE_NO_AUTH=true \
 -e IDE_EXTENSIONS_DIR=/extensions \
 -e TZ="Asia/Shanghai"  \
--v ~/workspace/ermscloud:/home/aima/workspace   \
+-v ~/workspace/ermscloud:/workspace   \
 -v ~/vwcode-data-dir:/home/aima/.local/share/code-server \
 -v ~/extensions:/extensions \
 aimacity/cloud-ide
@@ -162,7 +164,7 @@ toolings pre-installed and ready to use.
 
 #### OneDrive VSCode settting and workspace synchronization
 
-* start a fresh workspace and start synchronization
+##### start a fresh workspace and start synchronization
 
 ```bash
 #  start a new instance
@@ -190,7 +192,7 @@ cat > $IDE_WORKSPACE/.vscode/ondrive/refresh_token <<'EOF'
 the token data...
 EOF
 
-# if you done have a token, execute the fllowing command to create a new one
+# if you do not have a token, execute the fllowing command to create a new one
 get-onedrive-token
 # a new file $IDE_WORKSPACE/.vscode/ondrive/refresh_token was created
 ```
@@ -210,19 +212,21 @@ redirect_stderr=true
 
 ```bash
 # everything is ok now , let's create the new workspace and restart all services
-workspace new [workspace folder name]
+workspace new [workspace name]
 # refresh browser
 ```
 
-* load an exist workspace form local onedrive cache and start synchronization
+##### load an exist workspace form local onedrive cache and start synchronization
 
 ```bash
+# show the Available workspace
+workspace ls
 # everything is ok now , let's create the new workspace and restart all services
-workspace use [workspace folder name]
+workspace use [workspace name]
 # refresh browser
 ```
 
-* load an exist workspace  without local cache and start synchronization
+##### create an workspace manually without and start synchronization
 
 ```bash
 export  sync_dir=~/OneDrive
@@ -249,7 +253,29 @@ workspace use $workspace_name
 # refresh browser
 ```
 
-* disable onedrive and restore workspace
+##### download OneDrive workspace from cloud and start synchronization
+
+following the step [create fresh workspace](#start-a-fresh-workspace-and-start-synchronization) until you have enable onedrive service autostart
+
+```bash
+# start onedrive service
+supervisorctl start onedrive
+
+# then you can moniter the workspace via command
+workspace use $workspace_name
+# !!! after the file is download, use install-ext to sync
+# refresh browser
+```
+
+##### Share OneDrive workspace
+
+* Share the link from fron OneDrive
+
+* Copy the share folder to your cloud-ide
+
+* use the workspace
+
+##### leave onedrive and restore workspace
 
 ```bash
 workspace leave
@@ -262,7 +288,7 @@ workspace leave
 workspace ls
 ```
 
-* delete a workspace workspace
+##### delete a workspace workspace
 
 ```bash
 workspace remove [worksapce name]
