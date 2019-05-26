@@ -150,7 +150,10 @@ remove(){
 
     else 
          rm -fr $wp_path
+          echo "INFO: local workspace $1 was removed from the disk"
     fi
+    echo ""
+
 }
 
 new () {
@@ -266,7 +269,7 @@ if [ "$#" -gt  0 ]; then
         leave|restore)	
            leave
             ;;
-        delete|remove)	
+        delete|remove|rm)	
            remove $2
             ;;
         *) 
