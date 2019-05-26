@@ -23,7 +23,7 @@ COPY config /root/config
 RUN  cd /root/scripts && \
 # 	sh get-config-from-gist.sh && \
 # 	sh parse-extension-list.sh && \
-sh install-vscode-extensions.sh ../config/extensions.list
+sh install-vscode-extensions.sh /root/config/extensions.list
 
 # The production image for code-server
 FROM aimacity/workspace-full 
@@ -44,6 +44,7 @@ RUN sh /root/scripts/install-tools-dev.sh
 USER  aima
 ENV IDE_USER_DATA_DIR="$HOME/.local/share/code-server"
 ENV IDE_WORKSPACE="$HOME/workspace"
+ENV IDE_ORIGINAL_WORKSPACE="/workspace"
 ENV IDE_EXTENSIONS_DIR="$HOME/.local/share/code-server/extensions"
 ENV IDE_ALLOW_HTTP=false
 ENV IDE_NO_AUTH=false
@@ -51,7 +52,7 @@ ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 
 COPY  --from=coder-binary /usr/local/bin/code-server /usr/local/bin/code-server
-RUN  mkdir -p $IDE_USER_DATA_DIR/User && sudo mkdir $IDE_WORKSPACE  && sudo chown aima:aima $IDE_WORKSPACE
+RUN  mkdir -p $IDE_USER_DATA_DIR/User && sudo mkdir $IDE_ORIGINAL_WORKSPACE && ln -s  $IDE_ORIGINAL_WORKSPACE $IDE_WORKSPACE && sudo chown aima:aima $IDE_ORIGINAL_WORKSPACE $IDE_WORKSPACE
 #COPY  --chown=aima:aima  --from=vscode-env /root/settings.json $IDE_USER_DATA_DIR/User/settings.json
 #COPY  --chown=aima:aima --from=vscode-env /root/locale.json $IDE_USER_DATA_DIR/User/locale.json
 #COPY  --chown=aima:aima --from=vscode-env /root/keybindings.json $IDE_USER_DATA_DIR/User/keybindings.json

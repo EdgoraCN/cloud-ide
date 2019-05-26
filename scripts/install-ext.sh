@@ -47,7 +47,8 @@ else
 fi
 
 if [ -f "$EXT_LIST" ] ; then
-while IFS='' read -r line || [[ -n "$line" ]]; do
+cat $EXT_LIST | sed  '/#/d'  > /tmp/extensions.list
+while IFS="" read -r line || [ -n "$line" ]; do
     if [[ "$line"  =~ ^[a-zA-Z0-9] ]];then
         echo "Installing $line using VSCode";
         /tmp/VSCode-linux-x64/bin/code --user-data-dir $IDE_USER_DATA_DIR  --extensions-dir $IDE_EXTENSIONS_DIR  --install-extension $line
@@ -55,7 +56,7 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
     else
         echo "skip plugin $line";
     fi
-done < "$EXT_LIST"
+done < "/tmp/extensions.list"
 else 
     echo "$EXT_LIST does not exist, skip installation"
 fi

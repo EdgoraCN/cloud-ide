@@ -181,7 +181,7 @@ sync_dir = "~/OneDrive"
 skip_file = "~*|.~*|*.tmp|*.log"
 skip_dir = "node_modules|.m2|extensions|target"
 # give  a folder name to  the workspace in onedrive, if not set, `default` will be used
-workspace_name=default 
+workspace_name=default
 ```
 
 ```bash
@@ -210,7 +210,7 @@ redirect_stderr=true
 
 ```bash
 # everything is ok now , let's create the new workspace and restart all services
-workspace new
+workspace new [workspace folder name]
 # refresh browser
 ```
 
@@ -260,6 +260,12 @@ workspace leave
 
 ```bash
 workspace ls
+```
+
+* delete a workspace workspace
+
+```bash
+workspace remove [worksapce name]
 ```
 
 #### Mega VSCode settting and workspace synchronization (future)
