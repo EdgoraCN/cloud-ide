@@ -275,7 +275,7 @@ workspace use $workspace_name
 
 * use the workspace
 
-##### leave onedrive and restore workspace
+##### Leave onedrive and restore workspace
 
 ```bash
 workspace leave
@@ -292,6 +292,12 @@ workspace ls
 
 ```bash
 workspace remove [worksapce name]
+```
+
+##### Save current extensions list
+
+```bash
+workspace save
 ```
 
 #### Mega VSCode settting and workspace synchronization (future)
