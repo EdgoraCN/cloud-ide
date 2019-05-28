@@ -304,15 +304,58 @@ workspace save
 
 #### Sync settting and workspace wtih [Syncthing](https://github.com/syncthing/syncthing)  (future)
 
+### Connect to the VPN
+
+#### N2N VPN
+
+```bash
+# first  setup a vpn server , eg: the test server ip is  1.2.3.4 12151
+docker  run -d --name n2n_server --restart always   -p  5645:5645/udp -p 12151:12151/udp  --cap-add=NET_ADMIN --device=/dev/net/tun  aimacity/n2n   supernode  -l 12151
+
+# connect the nodes  to one vpn subnet
+# server 1 with ip 10.10.10.1
+docker  run -d --name  n2n_client --net host  --cap-add=NET_ADMIN  --device=/dev/net/tun  aimacity/n2n   edge -c    my-network -k mypassword  -f -r -a 10.10.10.1   -l  1.2.3.4:12151
+# server 2  with ip 10.10.10.2
+docker  run -d --name  n2n_client --net host  --cap-add=NET_ADMIN  --device=/dev/net/tun  aimacity/n2n   edge -c    my-network -k mypassword  -f -r -a 10.10.10.2  -l  1.2.3.4:12151
+
+# if you want to connect the cloud-ide container to the vpn server, you shoud change options to create the container , `--net host` is optional , it will let  the host server join the vpn network.
+
+docker run --name ide-beta   \
+-p 9888:8443  \
+--net host \
+--cap-add=NET_ADMIN  \
+--device=/dev/net/tun  \
+-e IDE_ALLOW_HTTP=true \
+-e IDE_NO_AUTH=true \
+aimacity/cloud-ide
+
+#enable the n2n client service 
+cat > $IDE_WORKSPACE/.vscode/service/n2n.conf <<'EOF'
+[program:n2n]
+command=/usr/local/bin/edge  -c    my-network -k mypassword  -f -r -a 10.10.10.10  -l  1.2.3.4:12151
+process_name=n2n
+#numprocs=1
+autostart=true
+autorestart=true
+startretries=999
+redirect_stderr=true
+EOF
+
+# join the vpn network
+supervisorctl reread
+supervisorctl  update
+
+```
+
 ## Features
 
-* Workspace and VS Code Setting synchronization
+* Workspace and VS Code Setting synchronization( one drive support)
 
-* Workspace service, toolchain management (in process)
+* Workspace, service, toolchain management (in process)
 
-* VS Code language pack support  (chinese is tested)
+* VS Code language pack support  (i18n support)
 
-* Network setting（plan）
+* Network setting（vpn and ssh tunel support)
 
 ## License
 

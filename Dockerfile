@@ -25,6 +25,8 @@ RUN  cd /root/scripts && \
 # 	sh parse-extension-list.sh && \
 sh install-vscode-extensions.sh /root/config/extensions.list
 
+FROM aimacity/n2n:latest as n2n
+
 # The production image for code-server
 FROM aimacity/workspace-full 
 LABEL author="ide@aima.city"
@@ -104,6 +106,8 @@ RUN sudo chmod +x  /usr/bin/install-vscode /usr/bin/install-ext /usr/bin/restart
 
 # install onedrive
 COPY --from=onedrive /usr/local/bin/onedrive /usr/local/bin/onedrive
+COPY --from=n2n  /usr/local/bin/edge /usr/local/bin/edge
+
 
 ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
 CMD ["/usr/local/bin/supervisord","-n","-c","/etc/supervisord.conf"]
